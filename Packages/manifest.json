@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "com.dss.nvimnvr": "https://github.com/dssste/NvimNvrEditor.git?path=/Assets/NvimNvr"
+  }
+}

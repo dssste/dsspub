@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "com.dss.nvimnvr": {
+      "version": "https://github.com/dssste/NvimNvrEditor.git?path=/Assets/NvimNvr",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "56f40a701945d183a6160fbd214a0c6782bc906e"
+    }
+  }
+}
