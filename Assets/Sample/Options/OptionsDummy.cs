@@ -6,10 +6,13 @@ namespace dss.pub.dummy{
 		public enum InteractType{interact_attack, interact_no_attack}
 
 		public IOption<InteractType> interactAttack => _interact_attack;
-		[SerializeField] private EnumEntry<InteractType> _interact_attack = new();
+		public IKeybind keybind => _keybind;
 
-		protected override void Init(){
-			_interact_attack.Init();
+		[SerializeField] private EnumEntry<InteractType> _interact_attack = new();
+		[SerializeField] private Keybind _keybind = new();
+
+		protected OptionsDummy(){
+			// _keybind.Init(actions);
 		}
 	}
 }

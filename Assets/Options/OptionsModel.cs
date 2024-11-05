@@ -23,7 +23,6 @@ namespace dss.pub.options{
 						}
 						_instance = new();
 					}
-					_instance.Init();
 				}
 				return _instance;
 			}
@@ -36,16 +35,9 @@ namespace dss.pub.options{
 			File.WriteAllText(filePath, JsonUtility.ToJson(this, true));
 		}
 
-		protected virtual void Init(){
-			_locale.Init();
-			_keybind.Init();
-		}
-
 		public IOption<string> locale => _locale;
-		public IKeybind keybind => _keybind;
 
 		[SerializeField] private LocaleEntry _locale = new();
-		[SerializeField] private Keybind _keybind = new();
 
 		protected OptionsModel(){}
 
@@ -73,19 +65,18 @@ namespace dss.pub.options{
 
 			[SerializeField] private T _value;
 			public T value{
-				get => _value;
+				get{
+					if(!isValid(_value)){
+						_value = getFallbackValue();
+					}
+					return _value;
+				}
 				set{
 					if(!isValid(value)) return;
 
 					_value = value;
 					onValueChanged?.Invoke();
 					instance.Save();
-				}
-			}
-
-			public void Init(){
-				if(!isValid(_value)){
-					_value = getFallbackValue();
 				}
 			}
 
@@ -110,13 +101,7 @@ namespace dss.pub.options{
 				getChoices = GetChoices;
 				isValid = IsValid;
 				getFallbackValue = GetFallbackValue;
-				/* the built in locale selector would try to pick a locale on start up, and
-				 * instead of overwriting it's selection, we make it able to pick the right one
-				 * by syncing our option to a player pref that it consumes. This is a slight optimization
-				 * and not the true data source of selected locale. The true data source should still be OptionsModel.
-				 * A pitfall is that the outside world would want to use += instead of = on this event,
-				 * but even if they overwrite the listeners, they would only omit an optimization, and would not break the system.
-				 */
+				// todo: use custom locale selector
 				onValueChanged = RefreshLocalePlayerPref;
 			}
 
@@ -127,10 +112,9 @@ namespace dss.pub.options{
 		}
 
 		[Serializable]
-		private class Keybind: IKeybind{
-			[SerializeField] private List<IKeybind.Value> _values = new();
-			// where does the user define the actions?
+		protected class Keybind: IKeybind{
 			private InputActionMap actions;
+			[SerializeField] private List<IKeybind.Value> _values = new();
 
 			public IKeybind.Value value{
 				set{
@@ -153,7 +137,8 @@ namespace dss.pub.options{
 				}
 			}
 
-			public void Init(){
+			public void Init(InputActionMap actions){
+				this.actions = actions;
 				foreach(var value in _values){
 					var action = actions.FindAction(value.action);
 					if(action == null) continue;

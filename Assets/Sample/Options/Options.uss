@@ -1,0 +1,45 @@
+:root {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+.section-header {
+	-unity-text-align: middle-center;
+	-unity-text-outline-width: 0.7px;
+	-unity-text-outline-color: var(--background-color);
+	-unity-font-style: bold;
+	margin: 5px;
+	font-size: 20px;
+}
+
+.unity-base-field__label {
+	-unity-text-align: middle-center;
+	margin: 5px;
+}
+
+.keybind-field__binding {
+	min-width: 70px;
+	-unity-text-align: middle-center;
+	margin: 5px;
+	color: var(--accent-text-color);
+}
+
+.keybind-field__binding-empty {
+	color: var(--primary-text-color);
+}
+
+.choose-field__choice {
+	min-width: 70px;
+	-unity-text-align: middle-center;
+	margin: 5px;
+}
+
+.choose-field__chosen {
+	color: var(--accent-text-color);
+}
+
+.panel-with-scrollbar .unity-base-slider__dragger {
+	background-color: var(--primary-text-color-transparent);
+}
