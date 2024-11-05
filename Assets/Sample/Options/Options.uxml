@@ -1,5 +1,11 @@
 <engine:UXML xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:engine="UnityEngine.UIElements" xmlns:editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
     <Style src="project://database/Assets/Sample/Options/Options.uss?fileID=7433441132597879392&amp;guid=8e8f8d6ca8fdaafaeb7e8c30d1a594c7&amp;type=3#Options" />
-    <engine:Label text="Hello Options" />
-    <dss.pub.options.ChooseField />
+    <dss.pub.options.Options>
+        <engine:Label text="Hello Options" />
+        <dss.pub.options.ChooseField name="locale">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="label" table="GUID:1ca93295639b47314b74a4605723a4d4" entry="Id(7633633280)" />
+            </Bindings>
+        </dss.pub.options.ChooseField>
+    </dss.pub.options.Options>
 </engine:UXML>

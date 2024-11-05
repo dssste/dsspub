@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
@@ -20,7 +21,7 @@ namespace dss.pub.options{
 		}
 
 		private void Mod(ChooseField ve, OptionsModel.IOption<string> option){
-			ve.createChoiceElement = Choice.Create;
+			// ve.createChoiceElement = s => new ChooseField.Choice(s);
 			ve.choices = option.choices;
 			ve.value = option.value;
 			ve.RegisterCallback<ChangeEvent<string>>(ev => {
@@ -31,7 +32,7 @@ namespace dss.pub.options{
 		}
 
 		private void Mod<T>(ChooseField ve, OptionsModel.IOption<T> option) where T: struct, Enum{
-			ve.createChoiceElement = Choice.Create;
+			// ve.createChoiceElement = s => new ChooseField.Choice(s);
 			ve.choices = option.choices.Select(choice => choice.ToString()).ToList();
 			ve.value = option.value.ToString();
 			ve.RegisterCallback<ChangeEvent<string>>(ev => {
@@ -67,7 +68,11 @@ namespace dss.pub.options{
 			}
 
 			public override void InitView(){
-				// this.BindLocalizedString(localizedString, OnStringChanged);
+				OnStringChanged(localizedString.GetLocalizedString());
+				localizedString.StringChanged += OnStringChanged;
+				RegisterCallback<DetachFromPanelEvent>(e => {
+					localizedString.StringChanged -= OnStringChanged;
+				});
 			}
 
 			public override void RefreshView(){
