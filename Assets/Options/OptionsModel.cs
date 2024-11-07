@@ -97,21 +97,33 @@ namespace dss.pub.options{
 		}
 
 		[Serializable]
-		protected class LocaleEntry: Entry<string>{
+		protected class LocaleEntry: IOption<string>{
+			[SerializeField] private string _value;
+
 			public LocaleEntry(){
-				getChoices = GetChoices;
-				isValid = value => true;
-				// todo: how do you set initial value, while the locale selector is not yet finished?
-				onValueChanged = RefreshLocale;
+				LocalizationSettings.SelectedLocaleAsync.Completed += handle => {
+					_value = handle.Result.Identifier.Code;
+					Save();
+				};
+				LocalizationSettings.Instance.OnSelectedLocaleChanged += locale => {
+					_value = locale.Identifier.Code;
+					Save();
+				};
 			}
 
-			private static IEnumerable<string> GetChoices() => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code);
-			private static void RefreshLocale(string value){
-				var locale = LocalizationSettings.AvailableLocales.GetLocale(value);
-				if(LocalizationSettings.SelectedLocale != locale){
-					LocalizationSettings.SelectedLocale = locale;
+			public List<string> choices => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code).ToList();
+
+			public string value{
+				get => _value;
+				set{
+					var locale = LocalizationSettings.AvailableLocales.GetLocale(value);
+					if(LocalizationSettings.SelectedLocale != locale){
+						LocalizationSettings.SelectedLocale = locale;
+					}
 				}
 			}
+
+			public Action<string> onValueChanged{get;set;}
 		}
 
 		[Serializable]

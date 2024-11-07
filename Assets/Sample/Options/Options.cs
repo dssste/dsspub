@@ -14,7 +14,6 @@ namespace dss.pub.options{
 
 		private void OnGeometryChanged(GeometryChangedEvent evt){
 			var om = OptionsDummy.instance;
-
 			Mod(this.Q<ChooseField>("locale"), om.locale);
 			Mod(this.Q<ChooseField>("interact-attack"), om.interactAttack);
 			// this.Query<KeybindField>().ForEach(ve => Mod(ve, om.keybind));
