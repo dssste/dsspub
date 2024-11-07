@@ -12,20 +12,22 @@ namespace dss.pub.options{
 		public static string filePath => Path.Combine(folder, "options.json");
 
 		private static OptionsModel _instance;
-		public static OptionsModel instance{
-			get{
-				if(_instance == null){
-					try{
-						_instance = JsonUtility.FromJson<OptionsModel>(File.ReadAllText(filePath));
-					}catch(System.Exception e){
-						if(e is not (FileNotFoundException or DirectoryNotFoundException)){
-							Debug.LogWarning($"Failed to load options: {e.Message}");
-						}
-						_instance = new();
+		protected static T GetInstance<T>() where T: OptionsModel{ 
+			if(_instance == null){
+				try{
+					_instance = JsonUtility.FromJson<T>(File.ReadAllText(filePath));
+					if(_instance == null){
+						Debug.LogWarning("Failed to parse options");
+						_instance = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
 					}
+				}catch(System.Exception e){
+					if(e is not (FileNotFoundException or DirectoryNotFoundException)){
+						Debug.LogWarning($"Failed to load options: {e.Message}");
+					}
+					_instance = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
 				}
-				return _instance;
 			}
+			return (T)_instance;
 		}
 
 		private void Save(){
@@ -39,8 +41,9 @@ namespace dss.pub.options{
 
 		[SerializeField] private LocaleEntry _locale = new();
 
-		protected OptionsModel(){}
-
+		protected OptionsModel(){
+			Debug.LogWarning("OptionsModel constructor should never be called");
+		}
 
 		public interface IOption<T>{
 			List<T> choices{get;}
@@ -76,7 +79,7 @@ namespace dss.pub.options{
 
 					_value = value;
 					onValueChanged?.Invoke();
-					instance.Save();
+					GetInstance<OptionsModel>().Save();
 				}
 			}
 
@@ -90,9 +93,13 @@ namespace dss.pub.options{
 		[Serializable]
 		protected class EnumEntry<T>: Entry<T> where T: Enum{
 			public EnumEntry(){
-				// getChoices = () => EnumExtensions.GetEnumerable<T>();
+				getChoices = GetChoices;
 				isValid = value => Enum.IsDefined(typeof(T), value);
 				getFallbackValue = () => default;
+			}
+
+			private static IEnumerable<T> GetChoices(){
+				return ((T[])Enum.GetValues(typeof(T))).OrderBy(e => e);
 			}
 		}
 
@@ -108,7 +115,7 @@ namespace dss.pub.options{
 			private static IEnumerable<string> GetChoices() => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code);
 			private static bool IsValid(string value) => !string.IsNullOrEmpty(value);
 			private static string GetFallbackValue() => LocalizationSettings.SelectedLocale.Identifier.Code;
-			private static void RefreshLocalePlayerPref() => PlayerPrefs.SetString("ui-manager-selected-locale", _instance.locale.value);
+			private static void RefreshLocalePlayerPref() => PlayerPrefs.SetString("ui-manager-selected-locale", GetInstance<OptionsModel>().locale.value);
 		}
 
 		[Serializable]
@@ -133,7 +140,7 @@ namespace dss.pub.options{
 							_values.Add(value);
 						}
 					}
-					instance.Save();
+					GetInstance<OptionsModel>().Save();
 				}
 			}
 

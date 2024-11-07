@@ -7,5 +7,10 @@
                 <UnityEngine.Localization.LocalizedString property="label" table="GUID:1ca93295639b47314b74a4605723a4d4" entry="Id(7633633280)" />
             </Bindings>
         </dss.pub.options.ChooseField>
+        <dss.pub.options.ChooseField name="interact-attack">
+            <Bindings>
+                <UnityEngine.Localization.LocalizedString property="label" table="GUID:1ca93295639b47314b74a4605723a4d4" entry="Id(7633633280)" />
+            </Bindings>
+        </dss.pub.options.ChooseField>
     </dss.pub.options.Options>
 </engine:UXML>

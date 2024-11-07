@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
+using dss.pub.dummy;
 using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
@@ -13,10 +13,10 @@ namespace dss.pub.options{
 		}
 
 		private void OnGeometryChanged(GeometryChangedEvent evt){
-			var om = OptionsModel.instance;
+			var om = OptionsDummy.instance;
 
 			Mod(this.Q<ChooseField>("locale"), om.locale);
-			// Mod(this.Q<ChooseField>("interact-attack"), om.interactAttack);
+			Mod(this.Q<ChooseField>("interact-attack"), om.interactAttack);
 			// this.Query<KeybindField>().ForEach(ve => Mod(ve, om.keybind));
 		}
 
