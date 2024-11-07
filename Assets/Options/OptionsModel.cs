@@ -106,14 +106,11 @@ namespace dss.pub.options{
 				getChoices = GetChoices;
 				isValid = IsValid;
 				getFallbackValue = GetFallbackValue;
-				// todo: use custom locale selector
-				onValueChanged = RefreshLocalePlayerPref;
 			}
 
 			private static IEnumerable<string> GetChoices() => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code);
 			private static bool IsValid(string value) => !string.IsNullOrEmpty(value);
 			private static string GetFallbackValue() => LocalizationSettings.SelectedLocale.Identifier.Code;
-			private static void RefreshLocalePlayerPref() => PlayerPrefs.SetString("ui-manager-selected-locale", GetInstance<OptionsModel>().locale.value);
 		}
 
 		[Serializable]
