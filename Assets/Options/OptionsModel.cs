@@ -41,9 +41,7 @@ namespace dss.pub.options{
 
 		[SerializeField] private LocaleEntry _locale = new();
 
-		protected OptionsModel(){
-			Debug.LogWarning("OptionsModel constructor should never be called");
-		}
+		protected OptionsModel(){}
 
 		public interface IOption<T>{
 			List<T> choices{get;}
