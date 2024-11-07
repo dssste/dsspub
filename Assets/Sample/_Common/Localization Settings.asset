@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Localization Settings
   m_EditorClassIdentifier: 
   m_StartupSelectors:
-  - rid: 1203551981822279704
+  - rid: 1203551981822279721
   - rid: 1203551933640736823
   m_AvailableLocales:
     rid: 1203551933640736824
@@ -197,6 +197,6 @@ MonoBehaviour:
         - default
         - d
         - 
-    - rid: 1203551981822279704
-      type: {class: OptionsLocaleSelector, ns: , asm: DSSOptions}
+    - rid: 1203551981822279721
+      type: {class: OptionsLocaleSelector, ns: dss.pub.dummy, asm: Assembly-CSharp}
       data: 

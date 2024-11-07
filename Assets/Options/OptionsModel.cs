@@ -30,23 +30,19 @@ namespace dss.pub.options{
 			return (T)_instance;
 		}
 
-		private void Save(){
+		private static void Save(){
 			if(!System.IO.Directory.Exists(folder)){
 				System.IO.Directory.CreateDirectory(folder);
 			}
-			File.WriteAllText(filePath, JsonUtility.ToJson(this, true));
+			File.WriteAllText(filePath, JsonUtility.ToJson(_instance, true));
 		}
-
-		public IOption<string> locale => _locale;
-
-		[SerializeField] private LocaleEntry _locale = new();
 
 		protected OptionsModel(){}
 
 		public interface IOption<T>{
 			List<T> choices{get;}
 			T value{get;set;}
-			Action onValueChanged{get;set;}
+			Action<T> onValueChanged{get;set;}
 		}
 
 		public interface IKeybind{
@@ -76,16 +72,16 @@ namespace dss.pub.options{
 					if(!isValid(value)) return;
 
 					_value = value;
-					onValueChanged?.Invoke();
-					GetInstance<OptionsModel>().Save();
+					onValueChanged?.Invoke(_value);
+					Save();
 				}
 			}
 
 			public Func<IEnumerable<T>> getChoices;
 			public Func<T, bool> isValid;
-			public Func<T> getFallbackValue;
+			public Func<T> getFallbackValue = () => default;
 
-			public Action onValueChanged{get;set;}
+			public Action<T> onValueChanged{get;set;}
 		}
 
 		[Serializable]
@@ -93,7 +89,6 @@ namespace dss.pub.options{
 			public EnumEntry(){
 				getChoices = GetChoices;
 				isValid = value => Enum.IsDefined(typeof(T), value);
-				getFallbackValue = () => default;
 			}
 
 			private static IEnumerable<T> GetChoices(){
@@ -101,16 +96,22 @@ namespace dss.pub.options{
 			}
 		}
 
-		private class LocaleEntry: Entry<string>{
+		[Serializable]
+		protected class LocaleEntry: Entry<string>{
 			public LocaleEntry(){
 				getChoices = GetChoices;
-				isValid = IsValid;
-				getFallbackValue = GetFallbackValue;
+				isValid = value => true;
+				// todo: how do you set initial value, while the locale selector is not yet finished?
+				onValueChanged = RefreshLocale;
 			}
 
 			private static IEnumerable<string> GetChoices() => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code);
-			private static bool IsValid(string value) => !string.IsNullOrEmpty(value);
-			private static string GetFallbackValue() => LocalizationSettings.SelectedLocale.Identifier.Code;
+			private static void RefreshLocale(string value){
+				var locale = LocalizationSettings.AvailableLocales.GetLocale(value);
+				if(LocalizationSettings.SelectedLocale != locale){
+					LocalizationSettings.SelectedLocale = locale;
+				}
+			}
 		}
 
 		[Serializable]
@@ -135,7 +136,7 @@ namespace dss.pub.options{
 							_values.Add(value);
 						}
 					}
-					GetInstance<OptionsModel>().Save();
+					Save();
 				}
 			}
 
