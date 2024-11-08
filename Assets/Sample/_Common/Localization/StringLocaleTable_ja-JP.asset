@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
-  m_Name: StringLocaleTable_zh-Hans
+  m_Name: StringLocaleTable_ja-JP
   m_EditorClassIdentifier: 
   m_LocaleId:
-    m_Code: zh-Hans
+    m_Code: ja-JP
   m_SharedData: {fileID: 11400000, guid: 1ca93295639b47314b74a4605723a4d4, type: 2}
   m_Metadata:
     m_Items: []
   m_TableData:
   - m_Id: 7633633280
-    m_Localized: yu yan
+    m_Localized: katakata
     m_Metadata:
       m_Items: []
   - m_Id: 1022166682304512
@@ -27,7 +27,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1022228116275200
-    m_Localized: zhong wen
+    m_Localized: "\u7B80\u4F53\u4E2D\u6587"
     m_Metadata:
       m_Items: []
   - m_Id: 1022243693920256
