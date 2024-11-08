@@ -12,7 +12,7 @@ namespace dss.pub.options{
 		public static string filePath => Path.Combine(folder, "options.json");
 
 		private static OptionsModel _instance;
-		protected static T GetInstance<T>() where T: OptionsModel{ 
+		protected static T GetInstance<T>() where T: OptionsModel{
 			if(_instance == null){
 				try{
 					_instance = JsonUtility.FromJson<T>(File.ReadAllText(filePath));
@@ -54,6 +54,8 @@ namespace dss.pub.options{
 			}
 
 			Value value{set;}
+
+			void ApplyAll(InputActionAsset inputActionAsset);
 		}
 
 		[Serializable]
@@ -128,9 +130,7 @@ namespace dss.pub.options{
 
 		[Serializable]
 		protected class Keybind: IKeybind{
-			private InputActionMap actions;
 			[SerializeField] private List<IKeybind.Value> _values = new();
-
 			public IKeybind.Value value{
 				set{
 					if(IsDefault(value)){
@@ -152,18 +152,22 @@ namespace dss.pub.options{
 				}
 			}
 
-			public void Init(InputActionMap actions){
-				this.actions = actions;
-				foreach(var value in _values){
-					var action = actions.FindAction(value.action);
+			private InputActionAsset inputActionAsset;
+
+			public void ApplyAll(InputActionAsset inputActionAsset){
+				foreach(var binding in _values){
+					var action = inputActionAsset.FindAction(binding.action);
 					if(action == null) continue;
 
-					action.ApplyBindingOverride(value.bindingIndex, value.path);
+					action.ApplyBindingOverride(binding.bindingIndex, binding.path);
 				}
+				this.inputActionAsset = inputActionAsset;
 			}
 
 			private bool IsDefault(IKeybind.Value value){
-				var action = actions.FindAction(value.action);
+				if(inputActionAsset == null) return false;
+
+				var action = inputActionAsset.FindAction(value.action);
 				if(action == null) return false;
 				if(value.bindingIndex >= action.bindings.Count) return false;
 

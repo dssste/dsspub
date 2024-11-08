@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using dss.pub.dummy;
-using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace dss.pub.options{
@@ -16,7 +15,7 @@ namespace dss.pub.options{
 			var om = OptionsDummy.instance;
 			Mod(this.Q<ChooseField>("locale"), om.locale);
 			Mod(this.Q<ChooseField>("interact-attack"), om.interactAttack);
-			// this.Query<KeybindField>().ForEach(ve => Mod(ve, om.keybind));
+			this.Query<KeybindField>().ForEach(ve => Mod(ve, om.keybind));
 		}
 
 		private void Mod(ChooseField ve, OptionsModel.IOption<string> option){
