@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine.Localization;
 using UnityEngine.UIElements;
 
 namespace dss.pub.options{
@@ -9,15 +10,13 @@ namespace dss.pub.options{
 		public static readonly string chosenLabelUssClassName = "choose-field__chosen";
 
 		private VisualElement inputElement;
-		public Func<string, Choice> createChoiceElement;
+		public Func<string, Choice> createChoiceElement = s => new Choice(s);
 
 		public List<string> choices{
 			set{
 				inputElement.Clear();
 				foreach(var choice in value){
-					var ve = createChoiceElement == null
-						? new Choice(choice)
-						: createChoiceElement(choice);
+					var ve = createChoiceElement(choice);
 					ve.AddToClassList(choiceLabelUssClassName);
 					ve.RegisterCallback<ClickEvent>(ev => {
 						this.value = ve.key;
@@ -64,6 +63,38 @@ namespace dss.pub.options{
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[{key}]");
 				}else{
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify(key);
+				}
+			}
+		}
+
+		public class LocalizedChoice: Choice{
+			private LocalizedString localizedString;
+
+			public LocalizedChoice(string key): base(key){
+				localizedString = new("MenuLocaleTable", key);
+			}
+
+			public LocalizedChoice(string table, string key): base(key){
+				localizedString = new(table, key);
+			}
+
+			public override void InitView(){
+				OnStringChanged(localizedString.GetLocalizedString());
+				localizedString.StringChanged += OnStringChanged;
+				RegisterCallback<DetachFromPanelEvent>(e => {
+					localizedString.StringChanged -= OnStringChanged;
+				});
+			}
+
+			public override void RefreshView(){
+				localizedString.RefreshString();
+			}
+
+			private void OnStringChanged(string value){
+				if(isChosen){
+					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[ {value} ]");
+				}else{
+					((INotifyValueChanged<string>)this).SetValueWithoutNotify(value);
 				}
 			}
 		}

@@ -19,7 +19,19 @@ MonoBehaviour:
     m_Items: []
   m_TableData:
   - m_Id: 7633633280
-    m_Localized: 'cn locale:'
+    m_Localized: yu yan
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1022166682304512
+    m_Localized: English
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1022228116275200
+    m_Localized: zhong wen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1022243693920256
+    m_Localized: nihongo
     m_Metadata:
       m_Items: []
   references:

@@ -20,7 +20,7 @@ namespace dss.pub.options{
 		}
 
 		private void Mod(ChooseField ve, OptionsModel.IOption<string> option){
-			// ve.createChoiceElement = s => new ChooseField.Choice(s);
+			ve.createChoiceElement = s => new ChooseField.LocalizedChoice("StringLocaleTable", s);
 			ve.choices = option.choices;
 			ve.value = option.value;
 			ve.RegisterCallback<ChangeEvent<string>>(ev => {
@@ -31,7 +31,7 @@ namespace dss.pub.options{
 		}
 
 		private void Mod<T>(ChooseField ve, OptionsModel.IOption<T> option) where T: struct, Enum{
-			// ve.createChoiceElement = s => new ChooseField.Choice(s);
+			ve.createChoiceElement = s => new ChooseField.LocalizedChoice("StringLocaleTable", s);
 			ve.choices = option.choices.Select(choice => choice.ToString()).ToList();
 			ve.value = option.value.ToString();
 			ve.RegisterCallback<ChangeEvent<string>>(ev => {
@@ -53,38 +53,6 @@ namespace dss.pub.options{
 					}
 				}
 			});
-		}
-
-		private class Choice: ChooseField.Choice{
-			private LocalizedString localizedString;
-
-			private Choice(string key): base(key){}
-
-			public static Choice Create(string key){
-				var choice = new Choice(key);
-				choice.localizedString = new("MenuLocaleTable", key);
-				return choice;
-			}
-
-			public override void InitView(){
-				OnStringChanged(localizedString.GetLocalizedString());
-				localizedString.StringChanged += OnStringChanged;
-				RegisterCallback<DetachFromPanelEvent>(e => {
-					localizedString.StringChanged -= OnStringChanged;
-				});
-			}
-
-			public override void RefreshView(){
-				localizedString.RefreshString();
-			}
-
-			private void OnStringChanged(string value){
-				if(isChosen){
-					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[ {value} ]");
-				}else{
-					((INotifyValueChanged<string>)this).SetValueWithoutNotify(value);
-				}
-			}
 		}
 	}
 }

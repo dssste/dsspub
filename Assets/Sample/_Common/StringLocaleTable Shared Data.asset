@@ -19,6 +19,18 @@ MonoBehaviour:
     m_Key: locale
     m_Metadata:
       m_Items: []
+  - m_Id: 1022166682304512
+    m_Key: en-US
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1022228116275200
+    m_Key: zh-Hans
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1022243693920256
+    m_Key: ja-JP
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
