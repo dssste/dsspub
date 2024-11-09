@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.InputSystem;
@@ -12,6 +13,8 @@ namespace dss.pub.options{
 		[UxmlAttribute] public InputActionReference key;
 		[UxmlAttribute] public int enabledBits = 0b1111;
 
+		public Func<KeybindField, int, Keybind> createKeybindElement = (keybindField, bindingIndex) => new Keybind(keybindField, bindingIndex);
+
 		public KeybindField(): base("", new()){
 			focusable = false;
 			var inputElement = this.Q<VisualElement>(className: inputUssClassName);
@@ -21,7 +24,7 @@ namespace dss.pub.options{
 				var value = key.action.bindings.Select(binding => binding.effectivePath).ToList();
 				((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(value);
 				for(var i = 0; i < value.Count; i++){
-					var keybind = new Keybind(this, i);
+					var keybind = createKeybindElement(this, i);
 					keybind.SetEnabled((enabledBits & (1 << i)) != 0);
 					keybind.AddToClassList(bindingLabelUssClassName);
 					inputElement.Add(keybind);
@@ -29,7 +32,7 @@ namespace dss.pub.options{
 			}));
 		}
 
-		private class Keybind: Label{
+		public class Keybind: Label{
 			public readonly KeybindField keybindField;
 			private readonly int bindingIndex;
 
@@ -85,14 +88,17 @@ namespace dss.pub.options{
 				}
 			}
 
-			private void RefreshView(){
-				var bindingPath = bindingIndex < keybindField.value.Count ? keybindField.value[bindingIndex] : null;
+			protected string GetBindingPath(){
+				return bindingIndex < keybindField.value.Count ? keybindField.value[bindingIndex] : null;
+			}
+
+			protected virtual void RefreshView(){
+				var bindingPath = GetBindingPath();
 				if(string.IsNullOrEmpty(bindingPath)){
 					AddToClassList(emptyBindingLabelUssClassName);
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[     ]");
 				}else{
 					RemoveFromClassList(emptyBindingLabelUssClassName);
-					// todo: built in to sprite?
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[ {bindingPath} ]");
 				}
 			}

@@ -70,10 +70,7 @@ namespace dss.pub.options{
 		public class LocalizedChoice: Choice{
 			private LocalizedString localizedString;
 
-			public LocalizedChoice(string key): base(key){
-				localizedString = new("MenuLocaleTable", key);
-			}
-
+			public LocalizedChoice(string key): this("MenuLocaleTable", key){}
 			public LocalizedChoice(string table, string key): base(key){
 				localizedString = new(table, key);
 			}
