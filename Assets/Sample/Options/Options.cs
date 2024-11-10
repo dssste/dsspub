@@ -41,6 +41,7 @@ namespace dss.pub.options{
 		}
 
 		private void Mod(KeybindField ve, OptionsModel.IKeybind keybind){
+			ve.Init();
 			ve.RegisterCallback<ChangeEvent<List<string>>>(ev => {
 				if(ev.target == ve){
 					for(int i = 0; i < ev.newValue.Count; i++){

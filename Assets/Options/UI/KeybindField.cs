@@ -10,37 +10,43 @@ namespace dss.pub.options{
 		public static readonly string bindingLabelUssClassName = "keybind-field__binding";
 		public static readonly string emptyBindingLabelUssClassName = "keybind-field__binding-empty";
 
+		private VisualElement inputElement;
 		[UxmlAttribute] public InputActionReference key;
 		[UxmlAttribute] public int enabledBits = 0b1111;
 
-		public Func<KeybindField, int, Keybind> createKeybindElement = (keybindField, bindingIndex) => new Keybind(keybindField, bindingIndex);
+		public Func<Keybind> createKeybindElement = () => new Keybind();
 
 		public KeybindField(): base("", new()){
 			focusable = false;
-			var inputElement = this.Q<VisualElement>(className: inputUssClassName);
+			inputElement = this.Q<VisualElement>(className: inputUssClassName);
 			inputElement.style.flexDirection = FlexDirection.Row;
 			inputElement.style.justifyContent = Justify.Center;
-			RegisterCallbackOnce((EventCallback<GeometryChangedEvent>)(ev => {
-				var value = key.action.bindings.Select(binding => binding.effectivePath).ToList();
-				((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(value);
-				for(var i = 0; i < value.Count; i++){
-					var keybind = createKeybindElement(this, i);
-					keybind.SetEnabled((enabledBits & (1 << i)) != 0);
-					keybind.AddToClassList(bindingLabelUssClassName);
-					inputElement.Add(keybind);
-				}
-			}));
+		}
+
+		public void Init(){
+			var value = key.action.bindings.Select(binding => binding.effectivePath).ToList();
+			((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(value);
+			for(var i = 0; i < value.Count; i++){
+				var keybind = createKeybindElement();
+				keybind.Init(this, i);
+				keybind.SetEnabled((enabledBits & (1 << i)) != 0);
+				keybind.AddToClassList(bindingLabelUssClassName);
+				inputElement.Add(keybind);
+			}
 		}
 
 		public class Keybind: Label{
-			public readonly KeybindField keybindField;
-			private readonly int bindingIndex;
+			private KeybindField keybindField;
+			private int bindingIndex;
 
-			public Keybind(KeybindField keybindField, int bindingIndex){
-				this.keybindField = keybindField;
-				this.bindingIndex = bindingIndex;
+			public Keybind(){
 				style.flexDirection = FlexDirection.Row;
 				RegisterCallback<MouseDownEvent>(OnMouseDown);
+			}
+
+			internal void Init(KeybindField keybindField, int bindingIndex){
+				this.keybindField = keybindField;
+				this.bindingIndex = bindingIndex;
 				RefreshView();
 			}
 

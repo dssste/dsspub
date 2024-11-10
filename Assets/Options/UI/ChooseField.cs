@@ -46,6 +46,13 @@ namespace dss.pub.options{
 			}
 		}
 
+		public ChooseField(): base("", new()){
+			focusable = false;
+			inputElement = this.Q<VisualElement>(className: inputUssClassName);
+			inputElement.style.flexDirection = FlexDirection.Row;
+			inputElement.style.justifyContent = Justify.Center;
+		}
+
 		public class Choice: Label{
 			public readonly string key;
 			public bool isChosen;
@@ -94,13 +101,6 @@ namespace dss.pub.options{
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify(value);
 				}
 			}
-		}
-
-		public ChooseField(): base("", new()){
-			focusable = false;
-			inputElement = this.Q<VisualElement>(className: inputUssClassName);
-			inputElement.style.flexDirection = FlexDirection.Row;
-			inputElement.style.justifyContent = Justify.Center;
 		}
 	}
 }
