@@ -1,0 +1,19 @@
+{
+    "name": "DSSAI",
+    "rootNamespace": "",
+    "references": [
+        "GUID:f4059aaf6c60a4a58a177a2609feb769",
+        "GUID:de4e6084e6d474788bb8c799d6b461eb",
+        "GUID:efa45043feb7e4147a305b73b5cea642",
+        "GUID:73907d139b13f8a43b7e3e95c329d30a"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
