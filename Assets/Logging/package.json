@@ -1,0 +1,15 @@
+{
+	"name": "com.dss.logging",
+	"version": "0.0.1",
+	"displayName": "DSS Logging API",
+	"description": "the rules and file paths for print and log",
+	"unity": "2022.3",
+	"author": {
+		"name": "dss steve"
+	},
+	"dependencies": {
+		"com.unity.logging": "1.3.4",
+		"com.unity.burst": "1.8.18",
+		"com.unity.collections": "2.5.1"
+	}
+}
