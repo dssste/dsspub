@@ -26,7 +26,7 @@ namespace dss.pub.logging {
 				Component component => component.gameObject.name + "." + component.GetType().Name,
 				Object unityObj => unityObj.name,
 				_ => key.ToString()
-			} + ") ";
+			} + ")";
 		}
 
 		public static void log(this object key, string message) {
