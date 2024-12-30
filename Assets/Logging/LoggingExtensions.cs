@@ -14,22 +14,20 @@ namespace dss.pub.logging {
 			if (!initialized) {
 				Log.Logger = new(new LoggerConfig()
 					.MinimumLevel.Info()
-					.OutputTemplate("[{Level} {Timestamp}] {Message}{NewLine}{Stacktrace}")
-					.WriteTo.File(filePath)
-					.WriteTo.StdOut(minLevel: LogLevel.Warning));
+					.WriteTo.File(filePath, outputTemplate: "[{Timestamp}] {Message} [{Level}]")
+					.WriteTo.UnityEditorConsole(minLevel: LogLevel.Warning, outputTemplate: "{Message}"));
 				initialized = true;
 			}
 		}
 
 		private static string MakeMessage(object key, string message) {
-			return message + "[" + key switch {
+			return message + " (" + key switch {
 				string s => s,
-				Component component => component.gameObject.name + "." + component.name,
+				Component component => component.gameObject.name + "." + component.GetType().Name,
 				Object unityObj => unityObj.name,
 				_ => key.ToString()
-			} + "]";
+			} + ") ";
 		}
-
 
 		public static void log(this object key, string message) {
 			CheckLogger();
