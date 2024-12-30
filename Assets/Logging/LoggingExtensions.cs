@@ -1,10 +1,21 @@
+using System.IO;
 using System.Text;
 using Unity.Logging;
+using Unity.Logging.Sinks;
 using UnityEngine;
 
 namespace dss.pub.logging {
 	public static class LoggingExtensions {
+		public static string filePath => Path.Combine(Application.persistentDataPath, "savedata", "server.log");
+
+		private static bool initialized = false;
+
 		public static void log(this object obj, string message) {
+			if (!initialized) {
+				Log.Logger = new(new LoggerConfig().MinimumLevel.Info().WriteTo.File(filePath));
+				initialized = true;
+			}
+
 			Log.Info(message);
 		}
 
