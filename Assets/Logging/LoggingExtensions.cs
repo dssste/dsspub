@@ -29,23 +29,26 @@ namespace dss.pub.logging {
 			} + ")";
 		}
 
-		public static void log(this object key, string message) {
+		public static object log(this object key, string message) {
 			CheckLogger();
 			Log.Info(MakeMessage(key, message));
+			return key;
 		}
 
-		public static void warn(this object key, string message) {
+		public static object warn(this object key, string message) {
 			CheckLogger();
 			Log.Warning(MakeMessage(key, message));
+			return key;
 		}
 
-		public static void err(this object key, string message) {
+		public static object err(this object key, string message) {
 			CheckLogger();
 			Log.Error(MakeMessage(key, message));
+			return key;
 		}
 
 #if (UNITY_EDITOR)
-		public static void print(this object key, params object[] args) {
+		public static object print(this object key, params object[] args) {
 			var sb = new StringBuilder();
 			sb.AppendJoin(", ", args);
 			if (key is Object unityObj) {
@@ -53,9 +56,10 @@ namespace dss.pub.logging {
 			} else {
 				Debug.Log(sb.ToString());
 			}
+			return key;
 		}
 
-		public static void iprint(this Object obj, params object[] args) {
+		public static object iprint(this Object obj, params object[] args) {
 			var go = obj switch {
 				Component c => c.gameObject,
 				_ => obj,
@@ -63,6 +67,7 @@ namespace dss.pub.logging {
 			if (UnityEditor.Selection.activeObject == go) {
 				print(go, args);
 			}
+			return obj;
 		}
 #endif
 	}
