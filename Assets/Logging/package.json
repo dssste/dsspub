@@ -1,6 +1,6 @@
 {
 	"name": "com.dss.logging",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"displayName": "DSS Logging API",
 	"description": "the rules and file paths for print and log",
 	"unity": "2022.3",
