@@ -1,0 +1,10 @@
+{
+	"name": "com.dss.types",
+	"version": "0.0.1",
+	"displayName": "DSS Scriptable Types API",
+	"description": "expand scriptable objects to action, func, etc, and provide QoL attributes and drawers",
+	"unity": "6000.0",
+	"author": {
+		"name": "dss steve"
+	}
+}
