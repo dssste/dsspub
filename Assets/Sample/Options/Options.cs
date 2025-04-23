@@ -46,7 +46,7 @@ namespace dss.pub.options{
 				if(ev.target == ve){
 					for(int i = 0; i < ev.newValue.Count; i++){
 						keybind.value = new(){
-							action = ve.key.action.name,
+							action = ve.key.action.actionMap.name + "/" + ve.key.action.name,
 							bindingIndex = i,
 							path = ev.newValue[i],
 						};
