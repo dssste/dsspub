@@ -4,9 +4,9 @@ using System.Linq;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
-namespace dss.pub.options{
+namespace dss.pub.options {
 	[UxmlElement]
-	public partial class KeybindField: BaseField<List<string>>{
+	public partial class KeybindField: BaseField<List<string>> {
 		public static readonly string bindingLabelUssClassName = "keybind-field__binding";
 		public static readonly string emptyBindingLabelUssClassName = "keybind-field__binding-empty";
 
@@ -16,48 +16,60 @@ namespace dss.pub.options{
 
 		public Func<Keybind> createKeybindElement = () => new Keybind();
 
-		public KeybindField(): base("", new()){
+		public KeybindField() : base("", new()) {
 			focusable = false;
 			inputElement = this.Q<VisualElement>(className: inputUssClassName);
 			inputElement.style.flexDirection = FlexDirection.Row;
 			inputElement.style.justifyContent = Justify.Center;
 		}
 
-		public void Init(){
+		public void Mod(OptionsModel.IKeybind keybind) {
 			var value = key.action.bindings.Select(binding => binding.effectivePath).ToList();
 			((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(value);
-			for(var i = 0; i < value.Count; i++){
-				var keybind = createKeybindElement();
-				keybind.Init(this, i);
-				keybind.SetEnabled((enabledBits & (1 << i)) != 0);
-				keybind.AddToClassList(bindingLabelUssClassName);
-				inputElement.Add(keybind);
+			for (var i = 0; i < value.Count; i++) {
+				var ve = createKeybindElement();
+				ve.Init(this, i);
+				ve.SetEnabled((enabledBits & (1 << i)) != 0);
+				ve.AddToClassList(bindingLabelUssClassName);
+				inputElement.Add(ve);
 			}
+
+			RegisterCallback<ChangeEvent<List<string>>>(ev => {
+				if (ev.target == this) {
+					for (int i = 0; i < ev.newValue.Count; i++) {
+						keybind.value = new() {
+							action = key.action.actionMap.name + "/" + key.action.name,
+							bindingIndex = i,
+							path = ev.newValue[i],
+						};
+					}
+				}
+			});
 		}
 
-		public class Keybind: Label{
+		public class Keybind: Label {
 			private KeybindField keybindField;
 			private int bindingIndex;
 
-			public Keybind(){
+			public Keybind() {
 				style.flexDirection = FlexDirection.Row;
 				RegisterCallback<MouseDownEvent>(OnMouseDown);
 			}
 
-			internal void Init(KeybindField keybindField, int bindingIndex){
+			internal void Init(KeybindField keybindField, int bindingIndex) {
 				this.keybindField = keybindField;
 				this.bindingIndex = bindingIndex;
 				RefreshView();
 			}
 
-			private void OnMouseDown(MouseDownEvent ev){
+			private void OnMouseDown(MouseDownEvent ev) {
 				RegisterCallbackOnce<MouseUpEvent, int>(OnMouseUp, ev.button);
 			}
 
-			private void OnMouseUp(MouseUpEvent ev, int downButton){
-				if(ev.button != downButton) return;
+			private void OnMouseUp(MouseUpEvent ev, int downButton) {
+				if (ev.button != downButton) return;
 
-				if(ev.button == 0){
+				if (ev.button == 0) {
 					var action = keybindField.key.action;
 					action.Disable();
 					action
@@ -84,8 +96,8 @@ namespace dss.pub.options{
 						})
 						.Start();
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[ ... ]");
-				}else if(ev.button == 1){
- 					var action = keybindField.key.action;
+				} else if (ev.button == 1) {
+					var action = keybindField.key.action;
 					action.ApplyBindingOverride(bindingIndex, "");
 					var value = new List<string>(keybindField.value);
 					value[bindingIndex] = "";
@@ -94,16 +106,16 @@ namespace dss.pub.options{
 				}
 			}
 
-			protected string GetBindingPath(){
+			protected string GetBindingPath() {
 				return bindingIndex < keybindField.value.Count ? keybindField.value[bindingIndex] : null;
 			}
 
-			protected virtual void RefreshView(){
+			protected virtual void RefreshView() {
 				var bindingPath = GetBindingPath();
-				if(string.IsNullOrEmpty(bindingPath)){
+				if (string.IsNullOrEmpty(bindingPath)) {
 					AddToClassList(emptyBindingLabelUssClassName);
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[     ]");
-				}else{
+				} else {
 					RemoveFromClassList(emptyBindingLabelUssClassName);
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[ {bindingPath} ]");
 				}
