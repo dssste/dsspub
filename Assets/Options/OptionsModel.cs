@@ -138,7 +138,21 @@ namespace dss.pub.options {
 				set {
 					_actions = value;
 					foreach (var v in values) {
-						var actionInstance = _actions.FindAction(v.id);
+						var actionInstance = _actions.FindAction(v.name);
+#if (UNITY_EDITOR)
+						var actionInstanceById = _actions.FindAction(v.id);
+						if (actionInstance == null) {
+							Debug.Log($"{v.name} not found, using {actionInstanceById} ( {v.id} ) instead");
+							actionInstance = actionInstanceById;
+						} else if (!object.ReferenceEquals(actionInstance, actionInstanceById)) {
+							Debug.Log($"{actionInstance} ( {v.name} ) does not match {actionInstanceById} ( {v.id} ), using the later one instead");
+							actionInstance = actionInstanceById;
+						}
+#else
+						if (actionInstance == null) {
+							actionInstance = _actions.FindAction(v.id);
+						}
+#endif
 						if (actionInstance == null) continue;
 
 						for (int i = 0; i < v.bindings.Count; i++) {
@@ -164,7 +178,7 @@ namespace dss.pub.options {
 						values.RemoveAll(v => v.id == actionInstance.id.ToString());
 					} else {
 						var newValue = new Value {
-							name = (actions.name + "/" + action.name).Replace("(Clone)", ""),
+							name = (action.actionMap.name + "/" + action.name).Replace("(Clone)", ""),
 							id = action.id.ToString(),
 							bindings = bindings.ToList(),
 						};
