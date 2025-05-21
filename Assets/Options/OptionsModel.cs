@@ -48,6 +48,7 @@ namespace dss.pub.options {
 		public interface IKeybind {
 			InputActionAsset actions { get; set; }
 			IEnumerable<string> this[InputAction action] { set; }
+			Action<InputAction> onValueChanged { get; set; }
 		}
 
 		[Serializable]
@@ -172,31 +173,36 @@ namespace dss.pub.options {
 					var actionInstance = actions.FindAction(action.id);
 					if (actionInstance == null) return;
 
-					var bindings = value.Take(actionInstance.bindings.Count);
+					var id = actionInstance.id.ToString();
+					var bindings = value.Take(actionInstance.bindings.Count).ToList();
 
 					if (actionInstance.bindings.Select(b => b.path).SequenceEqual(bindings)) {
-						values.RemoveAll(v => v.id == actionInstance.id.ToString());
+						values.RemoveAll(v => v.id == id);
 					} else {
-						var newValue = new Value {
-							name = (action.actionMap.name + "/" + action.name).Replace("(Clone)", ""),
-							id = action.id.ToString(),
-							bindings = bindings.ToList(),
-						};
 						bool found = false;
+						var name = (action.actionMap.name + "/" + action.name).Replace("(Clone)", "");
 						foreach (var v in values) {
-							if (v.id == newValue.id) {
-								v.bindings = newValue.bindings;
+							if (v.id == id) {
+								v.name = name;
+								v.bindings = bindings;
 								found = true;
 								break;
 							}
 						}
 						if (!found) {
-							values.Add(newValue);
+							values.Add(new() {
+								name = name,
+								id = id,
+								bindings = bindings,
+							});
 						}
 					}
 					Save();
+					onValueChanged?.Invoke(actionInstance);
 				}
 			}
+
+			public Action<InputAction> onValueChanged { get; set; }
 		}
 	}
 }
