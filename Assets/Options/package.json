@@ -1,6 +1,6 @@
 {
 	"name": "com.dss.options",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"displayName": "DSS Options API",
 	"description": "player options including c# types like string, enum and number, plus keybinding and locale",
 	"unity": "2020.3",
