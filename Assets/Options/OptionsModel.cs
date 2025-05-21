@@ -6,22 +6,22 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
 
-namespace dss.pub.options{
-	public class OptionsModel{
+namespace dss.pub.options {
+	public class OptionsModel {
 		private static string folder => Path.Combine(Application.persistentDataPath, "savedata");
 		public static string filePath => Path.Combine(folder, "options.json");
 
 		private static OptionsModel _instance;
-		protected static T GetInstance<T>() where T: OptionsModel{
-			if(_instance == null){
-				try{
+		protected static T GetInstance<T>() where T : OptionsModel {
+			if (_instance == null) {
+				try {
 					_instance = JsonUtility.FromJson<T>(File.ReadAllText(filePath));
-					if(_instance == null){
+					if (_instance == null) {
 						Debug.LogWarning("Failed to parse options");
 						_instance = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
 					}
-				}catch(System.Exception e){
-					if(e is not (FileNotFoundException or DirectoryNotFoundException)){
+				} catch (System.Exception e) {
+					if (e is not (FileNotFoundException or DirectoryNotFoundException)) {
 						Debug.LogWarning($"Failed to load options: {e.Message}");
 					}
 					_instance = (T)Activator.CreateInstance(typeof(T), nonPublic: true);
@@ -30,48 +30,40 @@ namespace dss.pub.options{
 			return (T)_instance;
 		}
 
-		private static void Save(){
-			if(!System.IO.Directory.Exists(folder)){
+		private static void Save() {
+			if (!System.IO.Directory.Exists(folder)) {
 				System.IO.Directory.CreateDirectory(folder);
 			}
 			File.WriteAllText(filePath, JsonUtility.ToJson(_instance, true));
 		}
 
-		protected OptionsModel(){}
+		protected OptionsModel() { }
 
-		public interface IOption<T>{
-			List<T> choices{get;}
-			T value{get;set;}
-			Action<T> onValueChanged{get;set;}
+		public interface IOption<T> {
+			List<T> choices { get; }
+			T value { get; set; }
+			Action<T> onValueChanged { get; set; }
 		}
 
-		public interface IKeybind{
-			[Serializable]
-			public class Value{
-				public string action;
-				public int bindingIndex;
-				public string path;
-			}
-
-			Value value{set;}
-
-			void ApplyAll(InputActionAsset inputActionAsset);
+		public interface IKeybind {
+			InputActionAsset actions { get; set; }
+			IEnumerable<string> this[InputAction action] { set; }
 		}
 
 		[Serializable]
-		protected class Entry<T>: IOption<T>{
+		protected class Entry<T> : IOption<T> {
 			public List<T> choices => getChoices().ToList();
 
 			[SerializeField] private T _value;
-			public T value{
-				get{
-					if(!isValid(_value)){
+			public T value {
+				get {
+					if (!isValid(_value)) {
 						_value = getFallbackValue();
 					}
 					return _value;
 				}
-				set{
-					if(!isValid(value)) return;
+				set {
+					if (!isValid(value)) return;
 
 					_value = value;
 					onValueChanged?.Invoke(_value);
@@ -83,26 +75,26 @@ namespace dss.pub.options{
 			public Func<T, bool> isValid;
 			public Func<T> getFallbackValue = () => default;
 
-			public Action<T> onValueChanged{get;set;}
+			public Action<T> onValueChanged { get; set; }
 		}
 
 		[Serializable]
-		protected class EnumEntry<T>: Entry<T> where T: Enum{
-			public EnumEntry(){
+		protected class EnumEntry<T> : Entry<T> where T : Enum {
+			public EnumEntry() {
 				getChoices = GetChoices;
 				isValid = value => Enum.IsDefined(typeof(T), value);
 			}
 
-			private static IEnumerable<T> GetChoices(){
+			private static IEnumerable<T> GetChoices() {
 				return ((T[])Enum.GetValues(typeof(T))).OrderBy(e => e);
 			}
 		}
 
 		[Serializable]
-		protected class LocaleEntry: IOption<string>{
+		protected class LocaleEntry : IOption<string> {
 			[SerializeField] private string _value;
 
-			public LocaleEntry(){
+			public LocaleEntry() {
 				LocalizationSettings.SelectedLocaleAsync.Completed += handle => {
 					_value = handle.Result.Identifier.Code;
 					Save();
@@ -115,63 +107,81 @@ namespace dss.pub.options{
 
 			public List<string> choices => LocalizationSettings.AvailableLocales.Locales.Select(locale => locale.Identifier.Code).ToList();
 
-			public string value{
+			public string value {
 				get => _value;
-				set{
+				set {
 					var locale = LocalizationSettings.AvailableLocales.GetLocale(value);
-					if(LocalizationSettings.SelectedLocale != locale){
+					if (LocalizationSettings.SelectedLocale != locale) {
 						LocalizationSettings.SelectedLocale = locale;
 					}
 				}
 			}
 
-			public Action<string> onValueChanged{get;set;}
+			public Action<string> onValueChanged { get; set; }
 		}
 
 		[Serializable]
-		protected class Keybind: IKeybind{
-			[SerializeField] private List<IKeybind.Value> _values = new();
-			public IKeybind.Value value{
-				set{
-					if(IsDefault(value)){
-						_values.RemoveAll(v => v.action == value.action && v.bindingIndex == value.bindingIndex);
-					}else{
+		protected class Keybind : IKeybind {
+			[Serializable]
+			public class Value {
+				public string displayName;
+				public string id;
+				public List<string> bindings;
+			}
+
+			[SerializeField] private List<Value> values = new();
+
+			[NonSerialized] public InputActionAsset _actions;
+
+			public InputActionAsset actions {
+				get => _actions;
+				set {
+					_actions = value;
+					foreach (var v in values) {
+						var actionInstance = _actions.FindAction(v.id);
+						if (actionInstance == null) continue;
+
+						for (int i = 0; i < v.bindings.Count; i++) {
+							var path = v.bindings[i];
+							if (!string.IsNullOrEmpty(path) && actionInstance.bindings[i].path != path) {
+								actionInstance.ApplyBindingOverride(i, path);
+							}
+						}
+					}
+				}
+			}
+
+			public IEnumerable<string> this[InputAction action] {
+				set {
+					if (actions == null) return;
+
+					var actionInstance = actions.FindAction(action.id);
+					if (actionInstance == null) return;
+
+					var bindings = value.Take(actionInstance.bindings.Count);
+
+					if (actionInstance.bindings.Select(b => b.path).SequenceEqual(bindings)) {
+						values.RemoveAll(v => v.id == actionInstance.id.ToString());
+					} else {
+						var newValue = new Value {
+							displayName = actions.name + "/" + actionInstance.name,
+							id = actionInstance.id.ToString(),
+							bindings = bindings.ToList(),
+						};
 						bool found = false;
-						foreach(var v in _values){
-							if(v.action == value.action && v.bindingIndex == value.bindingIndex){
-								v.path = value.path;
+						foreach (var v in values) {
+							if (v.id == newValue.id) {
+								v.bindings = newValue.bindings;
 								found = true;
 								break;
 							}
 						}
-						if(!found){
-							_values.Add(value);
+						if (!found) {
+							values.Add(newValue);
 						}
 					}
 					Save();
 				}
-			}
-
-			private InputActionAsset inputActionAsset;
-
-			public void ApplyAll(InputActionAsset inputActionAsset){
-				foreach(var binding in _values){
-					var action = inputActionAsset.FindAction(binding.action);
-					if(action == null) continue;
-
-					action.ApplyBindingOverride(binding.bindingIndex, binding.path);
-				}
-				this.inputActionAsset = inputActionAsset;
-			}
-
-			private bool IsDefault(IKeybind.Value value){
-				if(inputActionAsset == null) return false;
-
-				var action = inputActionAsset.FindAction(value.action);
-				if(action == null) return false;
-				if(value.bindingIndex >= action.bindings.Count) return false;
-
-				return action.bindings[value.bindingIndex].path == value.path;
 			}
 		}
 	}

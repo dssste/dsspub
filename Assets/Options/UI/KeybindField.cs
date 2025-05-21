@@ -1,18 +1,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 
 namespace dss.pub.options {
 	[UxmlElement]
-	public partial class KeybindField: BaseField<List<string>> {
+	public partial class KeybindField : BaseField<List<string>> {
 		public static readonly string bindingLabelUssClassName = "keybind-field__binding";
 		public static readonly string emptyBindingLabelUssClassName = "keybind-field__binding-empty";
 
 		private VisualElement inputElement;
 		[UxmlAttribute] public InputActionReference key;
 		[UxmlAttribute] public int enabledBits = 0b1111;
+		public OptionsModel.IKeybind keybind;
 
 		public Func<Keybind> createKeybindElement = () => new Keybind();
 
@@ -24,9 +26,10 @@ namespace dss.pub.options {
 		}
 
 		public void Mod(OptionsModel.IKeybind keybind) {
-			var value = key.action.bindings.Select(binding => binding.effectivePath).ToList();
-			((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(value);
-			for (var i = 0; i < value.Count; i++) {
+			this.keybind = keybind;
+			var bindings = keybind.actions.FindAction(key.action.id).bindings.Select(b => b.effectivePath).ToList();
+			((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(bindings);
+			for (var i = 0; i < bindings.Count; i++) {
 				var ve = createKeybindElement();
 				ve.Init(this, i);
 				ve.SetEnabled((enabledBits & (1 << i)) != 0);
@@ -36,18 +39,12 @@ namespace dss.pub.options {
 
 			RegisterCallback<ChangeEvent<List<string>>>(ev => {
 				if (ev.target == this) {
-					for (int i = 0; i < ev.newValue.Count; i++) {
-						keybind.value = new() {
-							action = key.action.actionMap.name + "/" + key.action.name,
-							bindingIndex = i,
-							path = ev.newValue[i],
-						};
-					}
+					keybind[key.action] = ev.newValue;
 				}
 			});
 		}
 
-		public class Keybind: Label {
+		public class Keybind : Label {
 			private KeybindField keybindField;
 			private int bindingIndex;
 
@@ -70,9 +67,9 @@ namespace dss.pub.options {
 				if (ev.button != downButton) return;
 
 				if (ev.button == 0) {
-					var action = keybindField.key.action;
-					action.Disable();
-					action
+					var actionInstance = keybindField.keybind.actions.FindAction(keybindField.key.action.id);
+					actionInstance.Disable();
+					actionInstance
 						.PerformInteractiveRebinding()
 						.WithControlsHavingToMatchPath("Keyboard")
 						.WithControlsHavingToMatchPath("Mouse")
@@ -85,20 +82,20 @@ namespace dss.pub.options {
 						.WithTargetBinding(bindingIndex)
 						.OnComplete(operation => {
 							var value = new List<string>(keybindField.value);
-							value[bindingIndex] = action.bindings[bindingIndex].effectivePath;
+							value[bindingIndex] = actionInstance.bindings[bindingIndex].effectivePath;
 							keybindField.value = value;
-							action.Enable();
+							actionInstance.Enable();
 							RefreshView();
 						})
 						.OnCancel(operation => {
-							action.Enable();
+							actionInstance.Enable();
 							RefreshView();
 						})
 						.Start();
 					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[ ... ]");
 				} else if (ev.button == 1) {
-					var action = keybindField.key.action;
-					action.ApplyBindingOverride(bindingIndex, "");
+					var actionInstance = keybindField.keybind.actions.FindAction(keybindField.key.action.id);
+					actionInstance.ApplyBindingOverride(bindingIndex, "");
 					var value = new List<string>(keybindField.value);
 					value[bindingIndex] = "";
 					keybindField.value = value;

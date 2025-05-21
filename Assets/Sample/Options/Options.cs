@@ -1,10 +1,15 @@
 using dss.pub.dummy;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace dss.pub.options {
 	[UxmlElement]
 	public partial class Options: VisualElement {
 		public Options() {
+#if(UNITY_EDITOR)
+			if(panel != null && panel.contextType == ContextType.Editor) return;
+			if(!Application.isPlaying) return;
+#endif
 			RegisterCallbackOnce<GeometryChangedEvent>(OnGeometryChanged);
 		}
 

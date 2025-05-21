@@ -1,10 +1,10 @@
 {
   "dependencies": {
     "com.dss.nvimnvr": "https://github.com/dssste/NvimNvrEditor.git?path=/Assets/NvimNvr",
-    "com.unity.inputsystem": "1.12.0",
-    "com.unity.localization": "1.5.3",
+    "com.unity.inputsystem": "1.14.0",
+    "com.unity.localization": "1.5.4",
     "com.unity.logging": "1.3.4",
-    "com.unity.test-framework": "1.4.5",
+    "com.unity.test-framework": "1.5.1",
     "com.unity.ugui": "2.0.0"
   }
 }
