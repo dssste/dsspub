@@ -124,7 +124,7 @@ namespace dss.pub.options {
 		protected class Keybind : IKeybind {
 			[Serializable]
 			public class Value {
-				public string displayName;
+				public string name;
 				public string id;
 				public List<string> bindings;
 			}
@@ -164,8 +164,8 @@ namespace dss.pub.options {
 						values.RemoveAll(v => v.id == actionInstance.id.ToString());
 					} else {
 						var newValue = new Value {
-							displayName = actions.name + "/" + actionInstance.name,
-							id = actionInstance.id.ToString(),
+							name = (actions.name + "/" + action.name).Replace("(Clone)", ""),
+							id = action.id.ToString(),
 							bindings = bindings.ToList(),
 						};
 						bool found = false;
