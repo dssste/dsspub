@@ -8,15 +8,19 @@ using UnityEngine.UIElements;
 namespace dss.pub.options {
 	[UxmlElement]
 	public partial class KeybindField : BaseField<List<string>> {
-		public static readonly string bindingLabelUssClassName = "keybind-field__binding";
-		public static readonly string emptyBindingLabelUssClassName = "keybind-field__binding-empty";
+		public const string bindingLabelUssClassName = "keybind-field__binding";
+		public const string emptyBindingLabelUssClassName = "keybind-field__binding-empty";
+		public const string interactiveRebindingIndicator = "...";
 
 		private VisualElement inputElement;
 		[UxmlAttribute] public InputActionReference key;
 		[UxmlAttribute] public int enabledBits = 0b1111;
 		public OptionsModel.IKeybind keybind;
-
-		public Func<Keybind> createKeybindElement = () => new Keybind();
+		public Func<string, string> getDisplayPath = bindingPath => bindingPath switch {
+			interactiveRebindingIndicator => "[ ... ]",
+			null or "" => "[     ]",
+			_ => $"[ {bindingPath} ]",
+		};
 
 		public KeybindField() : base("", new()) {
 			focusable = false;
@@ -30,7 +34,7 @@ namespace dss.pub.options {
 			var bindings = keybind.actions.FindAction(key.action.id).bindings.Select(b => b.effectivePath).ToList();
 			((INotifyValueChanged<List<string>>)this).SetValueWithoutNotify(bindings);
 			for (var i = 0; i < bindings.Count; i++) {
-				var ve = createKeybindElement();
+				var ve = new KeybindLabel();
 				ve.Init(this, i);
 				ve.SetEnabled((enabledBits & (1 << i)) != 0);
 				ve.AddToClassList(bindingLabelUssClassName);
@@ -44,16 +48,16 @@ namespace dss.pub.options {
 			});
 		}
 
-		public class Keybind : Label {
+		private class KeybindLabel : Label {
 			private KeybindField keybindField;
 			private int bindingIndex;
 
-			public Keybind() {
+			public KeybindLabel() {
 				style.flexDirection = FlexDirection.Row;
 				RegisterCallback<MouseDownEvent>(OnMouseDown);
 			}
 
-			internal void Init(KeybindField keybindField, int bindingIndex) {
+			public void Init(KeybindField keybindField, int bindingIndex) {
 				this.keybindField = keybindField;
 				this.bindingIndex = bindingIndex;
 				RefreshView();
@@ -92,7 +96,7 @@ namespace dss.pub.options {
 							RefreshView();
 						})
 						.Start();
-					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[ ... ]");
+					((INotifyValueChanged<string>)this).SetValueWithoutNotify(keybindField.getDisplayPath(KeybindField.interactiveRebindingIndicator));
 				} else if (ev.button == 1) {
 					var actionInstance = keybindField.keybind.actions.FindAction(keybindField.key.action.id);
 					actionInstance.ApplyBindingOverride(bindingIndex, "");
@@ -103,19 +107,14 @@ namespace dss.pub.options {
 				}
 			}
 
-			protected string GetBindingPath() {
-				return bindingIndex < keybindField.value.Count ? keybindField.value[bindingIndex] : null;
-			}
-
-			protected virtual void RefreshView() {
-				var bindingPath = GetBindingPath();
+			public void RefreshView() {
+				var bindingPath = bindingIndex < keybindField.value.Count ? keybindField.value[bindingIndex] : null;
 				if (string.IsNullOrEmpty(bindingPath)) {
 					AddToClassList(emptyBindingLabelUssClassName);
-					((INotifyValueChanged<string>)this).SetValueWithoutNotify("[     ]");
 				} else {
 					RemoveFromClassList(emptyBindingLabelUssClassName);
-					((INotifyValueChanged<string>)this).SetValueWithoutNotify($"[ {bindingPath} ]");
 				}
+				((INotifyValueChanged<string>)this).SetValueWithoutNotify(keybindField.getDisplayPath(bindingPath));
 			}
 		}
 	}
