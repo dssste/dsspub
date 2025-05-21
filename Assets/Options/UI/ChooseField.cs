@@ -6,18 +6,20 @@ using UnityEngine.UIElements;
 
 namespace dss.pub.options {
 	[UxmlElement]
-	public partial class ChooseField: BaseField<string> {
+	public partial class ChooseField : BaseField<string> {
 		public static readonly string choiceLabelUssClassName = "choose-field__choice";
 		public static readonly string chosenLabelUssClassName = "choose-field__chosen";
 
 		private VisualElement inputElement;
+		[UxmlAttribute] public int enabledBits = -1;
 		public Func<string, Choice> createChoiceElement = s => new Choice(s);
 
 		public List<string> choices {
 			set {
 				inputElement.Clear();
-				foreach (var choice in value) {
-					var ve = createChoiceElement(choice);
+				for (int i = 0; i < value.Count; i++) {
+					var ve = createChoiceElement(value[i]);
+					ve.SetEnabled((enabledBits & (1 << i)) != 0);
 					ve.AddToClassList(choiceLabelUssClassName);
 					ve.RegisterCallback<ClickEvent>(ev => {
 						this.value = ve.key;
@@ -74,7 +76,7 @@ namespace dss.pub.options {
 			});
 		}
 
-		public class Choice: Label {
+		public class Choice : Label {
 			public readonly string key;
 			public bool isChosen;
 
@@ -95,7 +97,7 @@ namespace dss.pub.options {
 			}
 		}
 
-		public class LocalizedChoice: Choice {
+		public class LocalizedChoice : Choice {
 			private LocalizedString localizedString;
 
 			public LocalizedChoice(string key) : this("MenuLocaleTable", key) { }

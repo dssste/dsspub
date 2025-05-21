@@ -14,7 +14,7 @@ namespace dss.pub.options {
 
 		private VisualElement inputElement;
 		[UxmlAttribute] public InputActionReference key;
-		[UxmlAttribute] public int enabledBits = 0b1111;
+		[UxmlAttribute] public int enabledBits = -1;
 		public OptionsModel.IKeybind keybind;
 		public Func<string, string> getDisplayPath = bindingPath => bindingPath switch {
 			interactiveRebindingIndicator => "[ ... ]",
