@@ -8,7 +8,14 @@ using UnityEngine.Localization.Settings;
 
 namespace dss.pub.options {
 	public class OptionsModel {
-		private static string folder => Path.Combine(Application.persistentDataPath, "savedata");
+		private static string folder => Path.Combine(
+			Application.persistentDataPath,
+#if (UNITY_EDITOR)
+			"savedata_editorplaymode"
+#else
+			"savedata"
+#endif
+		);
 		public static string filePath => Path.Combine(folder, "options.json");
 
 		private static OptionsModel _instance;
