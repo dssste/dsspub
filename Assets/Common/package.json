@@ -1,7 +1,7 @@
 {
 	"name": "com.dss.common",
 	"version": "0.0.1",
-	"displayName": "DSS common values",
+	"displayName": "DSS Common Values",
 	"description": "standardized common values",
 	"unity": "2022.3",
 	"author": {
