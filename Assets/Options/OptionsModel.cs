@@ -2,21 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using dss.pub.common;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Settings;
 
 namespace dss.pub.options {
 	public class OptionsModel {
-		private static string folder => Path.Combine(
-			Application.persistentDataPath,
-#if (UNITY_EDITOR)
-			"savedata_editorplaymode"
-#else
-			"savedata"
-#endif
-		);
-		public static string filePath => Path.Combine(folder, "options.json");
+		private static string folder => DataPath.savedata;
+		public static string filePath = Path.Combine(folder, "options.json");
 
 		private static OptionsModel _instance;
 		protected static T GetInstance<T>() where T : OptionsModel {

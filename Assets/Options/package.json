@@ -9,6 +9,7 @@
 	},
 	"dependencies": {
 		"com.unity.localization": "1.5.2",
-		"com.unity.inputsystem": "1.11.1"
+		"com.unity.inputsystem": "1.11.1",
+		"com.dss.common": "https://github.com/dssste/dsspub.git?path=/Assets/Common"
 	}
 }

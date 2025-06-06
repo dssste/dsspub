@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace dss.pub.logging {
 	public static class LoggingExtensions {
-		public static string filePath => Path.Combine(Application.persistentDataPath, "savedata", "server.log");
+		public static string filePath = Path.Combine(dss.pub.common.DataPath.savedata, "server.log");
 
 		private static bool initialized = false;
 

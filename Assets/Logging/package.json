@@ -10,6 +10,7 @@
 	"dependencies": {
 		"com.unity.logging": "1.3.4",
 		"com.unity.burst": "1.8.18",
-		"com.unity.collections": "2.5.1"
+		"com.unity.collections": "2.5.1",
+		"com.dss.common": "https://github.com/dssste/dsspub.git?path=/Assets/Common"
 	}
 }
