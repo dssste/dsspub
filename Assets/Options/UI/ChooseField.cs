@@ -66,6 +66,19 @@ namespace dss.pub.options {
 			});
 		}
 
+		public void Mod(OptionsModel.IOption<bool> option) {
+			choices = option.choices.Select(btos).ToList();
+			value = btos(option.value);
+			RegisterCallback<ChangeEvent<string>>(ev => {
+				if (ev.target == this) {
+					option.value = stob(ev.newValue);
+				}
+			});
+		}
+
+		private static bool stob(string s) => s == "yes" ? true : false;
+		private static string btos(bool b) => b ? "yes" : "no";
+
 		public void Mod<T>(OptionsModel.IOption<T> option) where T : struct, Enum {
 			choices = option.choices.Select(choice => choice.ToString()).ToList();
 			value = option.value.ToString();
@@ -106,7 +119,7 @@ namespace dss.pub.options {
 			}
 
 			public override void InitView() {
-				OnStringChanged(localizedString.GetLocalizedString());
+				// OnStringChanged(localizedString.GetLocalizedString());
 				localizedString.StringChanged += OnStringChanged;
 				RegisterCallback<DetachFromPanelEvent>(e => {
 					localizedString.StringChanged -= OnStringChanged;

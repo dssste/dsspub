@@ -76,19 +76,43 @@ namespace dss.pub.options {
 			public Func<IEnumerable<T>> getChoices;
 			public Func<T, bool> isValid;
 			public Func<T> getFallbackValue = () => default;
-
 			public Action<T> onValueChanged { get; set; }
+		}
+
+		[Serializable]
+		protected class BoolEntry : Entry<bool> {
+			public BoolEntry() {
+				getChoices = GetChoices;
+				isValid = IsValid;
+				getFallbackValue = GetFallbackValue;
+			}
+
+			private static IEnumerable<bool> GetChoices() {
+				return new bool[2] { true, false };
+			}
+
+			private static bool IsValid(bool value) {
+				return true;
+			}
+
+			private static bool GetFallbackValue() {
+				return true;
+			}
 		}
 
 		[Serializable]
 		protected class EnumEntry<T> : Entry<T> where T : Enum {
 			public EnumEntry() {
 				getChoices = GetChoices;
-				isValid = value => Enum.IsDefined(typeof(T), value);
+				isValid = IsValid;
 			}
 
 			private static IEnumerable<T> GetChoices() {
 				return ((T[])Enum.GetValues(typeof(T))).OrderBy(e => e);
+			}
+
+			private static bool IsValid(T value) {
+				return Enum.IsDefined(typeof(T), value);
 			}
 		}
 
