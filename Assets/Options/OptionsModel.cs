@@ -105,6 +105,7 @@ namespace dss.pub.options {
 			public EnumEntry() {
 				getChoices = GetChoices;
 				isValid = IsValid;
+				getFallbackValue = GetFallbackValue;
 			}
 
 			private static IEnumerable<T> GetChoices() {
@@ -113,6 +114,10 @@ namespace dss.pub.options {
 
 			private static bool IsValid(T value) {
 				return Enum.IsDefined(typeof(T), value);
+			}
+
+			private static T GetFallbackValue() {
+				return GetChoices().FirstOrDefault();
 			}
 		}
 
